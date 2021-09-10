@@ -214,7 +214,7 @@ summary(met$elev)
     ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
     ##     -13     101     252     413     400    4113     710
 
-The highest weather station is at 4113 ft.
+The highest weather station is at 4113 mts.
 
 Now we need to fix the temperature.
 
@@ -348,8 +348,6 @@ hist(met$elev, breaks=100)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-![](Lab%2003/Figures/000003.pbg)
 
 ``` r
 hist(met$temp)
