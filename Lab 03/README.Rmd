@@ -81,3 +81,47 @@ summary(met[, .(lat, lon, wind.sp, temp, elev)])
 head(met)
 ```
 
+##Step 5: Check the data against an external data source
+
+```{r}
+met <- met[temp>-15]
+met2 <- met[order(temp)]
+head(met2)
+```
+
+
+##Step 6: 
+
+```{r}
+elev <- met[elev==max(elev, na.rm=TRUE)][, summary(wind.sp)]
+elev
+elev <- met[elev==max(elev, na.rm=TRUE)][, summary(temp)]
+elev
+```
+
+```{r}
+met[elev == max(elev, na.rm=TRUE), .(
+  temp_wind = cor(temp, wind.sp, use="complete"),  
+  temp_day = cor(temp, day, use="complete"),
+  temp_hour = cor(temp, hour, use="complete"),
+  wind_day = cor(wind.sp, day, use="complete"),
+  wind_hour = cor(wind.sp, hour, use="complete")
+)]
+```
+
+## Step 7: Exploratory graphs
+
+```{r}
+hist(met$elev, breaks=100)
+```
+
+
+
+```{r}
+hist(met$temp)
+```
+
+```{r}
+hist(met$wind.sp)
+```
+
