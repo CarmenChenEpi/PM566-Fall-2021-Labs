@@ -1,0 +1,83 @@
+---
+title: "Lab 3"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "http://cran.rstudio.com"))
+```
+
+## Step 1: Read the data
+
+```{r}
+#Install only if we don't have the package
+if(!require(data.table)){
+  install.packages("data.table")
+}
+
+#load required package
+library(data.table)
+
+#Only download it if we haven't
+if(!file.exists("met_all.gz")){
+  
+  download.file(
+  "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz", 
+  destfile = "met_all.gz", 
+  method="libcurl", 
+  timeout = 60
+  )
+
+}
+
+met <- data.table::fread("met_all.gz")
+```
+
+
+## Step 2: Checking the dimensions, headers, footers
+```{r}
+dim(met)
+head(met)
+tail(met)
+```
+
+## Step 3: Take a look at the variables
+
+```{r}
+str(met)
+```
+
+
+## Step 4: Take a closer look at the key variables
+
+Looking at categorical variables
+```{r}
+table(met$year)
+table(met$day)
+table(met$hour)
+```
+
+Looking at continuous variables
+```{r}
+summary(met$temp)
+summary(met$elev)
+summary(met$wind.sp)
+```
+
+Replace elevations with 9999 as NA
+```{r}
+met[met$elev==9999.0] <- NA
+#met[elev == 9999.0, elev := NA]
+summary(met$elev)
+```
+
+The highest weather station is at `r max(met$elev, na.rm=TRUE)` `r ifelse(runif(1) > .5, "ft", "mts")`.
+
+Now we need to fix the temperature.
+```{r}
+met <- met[temp>-40][order(temp)]
+summary(met[, .(lat, lon, wind.sp, temp, elev)])
+head(met)
+```
+
