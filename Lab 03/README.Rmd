@@ -1,6 +1,8 @@
 ---
 title: "Lab 3"
-output: github_document
+Name: Carmen Chen
+Date: 09/10/2021
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -90,13 +92,11 @@ head(met2)
 ```
 
 
-##Step 6: 
+##Step 6: Calculate summary statistics
 
 ```{r}
-elev <- met[elev==max(elev, na.rm=TRUE)][, summary(wind.sp)]
-elev
-elev <- met[elev==max(elev, na.rm=TRUE)][, summary(temp)]
-elev
+elev <- met[elev==max(elev)]
+summary(elev)
 ```
 
 ```{r}
@@ -123,5 +123,34 @@ hist(met$temp)
 
 ```{r}
 hist(met$wind.sp)
+```
+
+Look at where the weather station with highest elevation is located.
+
+```{r}
+library(leaflet)
+leaflet(elev) %>%
+  addProviderTiles('OpenStreetMap') %>% 
+  addCircles(lat=~lat,lng=~lon, opacity=1, fillOpacity=1, radius=100)
+```
+
+
+```{r}
+library(lubridate)
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+```
+
+```{r}
+elev <- elev[order(date)]
+head(elev)
+```
+
+```{r}
+plot(elev$date, elev$temp, type='l')
+```
+
+```{r}
+plot(elev$date, elev$wind.sp, type='l')
 ```
 
