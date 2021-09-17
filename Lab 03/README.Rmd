@@ -3,6 +3,7 @@ title: "Lab 3"
 Name: Carmen Chen
 Date: 09/10/2021
 output: github_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
