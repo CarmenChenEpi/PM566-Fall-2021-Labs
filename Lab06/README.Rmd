@@ -1,0 +1,134 @@
+---
+title: "Lab 06"
+author: "Carmen Chen"
+date: "10/1/2021"
+output: github_document
+always_allow_html: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "http://cran.rstudio.com")) 
+library(tidyverse)
+library(tidytext)
+library(tibble)
+library(dplyr)
+```
+
+##Download the data
+```{r get-data, cache=TRUE}
+fn <- "mtsamples.csv"
+if(!file.exists(fn))
+  download.file("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/00_mtsamples/mtsamples.csv", destfile = fn)
+
+mtsamples <- read.csv(fn) #read data from a data frame
+mtsamples <- as_tibble(mtsamples)
+```
+
+
+#Question 1: What specialties do we have?
+We can use count() from dplyr to figure out how many different catagories do we have? Are these catagories related? overlapping? evenly distributed?
+
+
+```{r dist-of-specialities}
+specialties <- mtsamples %>%
+  count(medical_specialty)
+
+specialties %>%
+  arrange(desc(n)) %>%
+  top_n(15) %>%
+  knitr::kable()
+```
+
+There are `r nrow(specialties)` specialties. Let's take a look at the distribution:
+
+```{r dist1}
+#Method 1 (not that pretty)
+ggplot(mtsamples, aes(x = medical_specialty)) +
+  geom_histogram(stat = "count") +
+  coord_flip() #for better reading the categories
+```
+
+```{r dist2}
+#Method 2
+ggplot(specialties, aes(x = n, y = fct_reorder(medical_specialty, n))) + #x is frequency, y is the label, sorting the medical_specialty according to n
+  geom_col() #plot column
+```
+
+These are not evenly distributed.
+
+
+#Question 2
+Tokenize the the words in the transcription column
+Count the number of times each token appears
+Visualize the top 20 most frequent words
+
+```{r token-transcript}
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE) %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+  geom_col()
+
+```
+
+The word "patient" seems to be important, but we observe a lot of stop words.
+
+#Question 3
+Redo visualization but remove stopwords before
+Bonus points if you remove numbers as well
+What do we see know that we have removed stop words? Does it give us a better idea of what the text is about?
+
+```{r}
+mtsamples %>%
+  unnest_tokens(output = word, input = transcription) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words, by = "word") %>%
+  top_n(20) %>%
+  ggplot(aes(x = n, y = fct_reorder(word, n))) +
+  geom_col()
+  
+```
+
+Looking better, but we don't like the numbers
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+How to push the file in Terminal using command lines:
+
+git add lab06/README
+git status
+git commit -a -m "Starting with lab06"
+git push
+
+
+How to remove the file on track:
+
+git rm --cache -r lab06/README_cache
+
+
