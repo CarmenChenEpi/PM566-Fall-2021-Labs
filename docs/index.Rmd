@@ -13,6 +13,9 @@ always_allow_html: TRUE
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "http://cran.rstudio.com"))
+library(tidyverse)
+library(tidytext)
 ```
 
 if(knitr::is_html_output(excludes = "gfm)){
@@ -32,6 +35,7 @@ website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2")
 counts <- xml2::xml_find_first(website, "/html/body/main/div[9]/div[2]/section[1]/div[2]/div[1]/span") #inspect -> copy full x path
 
 # Turning it into text
+#or use xml2::xml_text(counts)
 counts <- as.character(counts)
 
 # Extracting the data using regex
@@ -53,7 +57,7 @@ query_ids <- GET(
     retmax = 1000)
 )
 
-query_ids <- GET(
+GET(
   url   = "https://eutils.ncbi.nlm.nih.gov/",
   path = "entrez/eutils/esearch.fcgi",
   query = list(
@@ -65,5 +69,90 @@ query_ids <- GET(
 ids <- httr::content(query_ids)
 ```
 
+
+#Question 3: Get details about the articles
+The Ids are wrapped around text in the following way: <Id>... id number ...</Id>. we can use a regular expression that extract that information. Fill out the following lines of code:
+
+```{r eval=FALSE}
+ids_list <- xml2::as_list(ids) 
+ids_char <- as.character(ids)
+```
+
+
+```{r}
+# Turn the result into a character vector
+ids <- as.character(ids)
+
+# Find all the ids 
+ids <- stringr::str_extract_all(ids, "<Id>[[:digit:]]+</Id>")[[1]]
+
+# Remove all the leading and trailing <Id> </Id>. Make use of "|"
+#stringr::str_remove_all(ids, "</?Id>")
+ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
+head(ids)
+paste(ids, collapse =",")
+```
+
+```{r}
+publications <- GET(
+  url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+  query = list(
+   db = "pubmed",
+   id =  I(paste(ids, collapse = ",")),
+   retmax = 1000,
+   rettype = "abstract"
+    )
+)
+
+# Turning the output into character vector
+publications <- httr::content(publications)
+publications_txt <- as.character(publications)
+```
+
+#Question 4: Distribution of universities, schools, and departments
+
+```{r univ-insti}
+institution <- str_extract_all(
+  str_to_lower(publications_txt),
+  "university\\s+of\\s+(southern|new|northern|the)?\\s*[[:alpha:]-]+|[[:alpha:]-]+\\s+institute\\s+of\\s+[[:alpha:]-]+"
+  ) 
+institution <- unlist(institution)
+table(institution)
+```
+
+```{r school-dep}
+schools_and_deps <- str_extract_all(
+  str_to_lower(publications_txt),
+  "school\\s+of\\s+(southern|new|northern|the)?\\s*[[:alpha:]-]+|[[:alpha:]-]+\\s+department\\s+of\\s+[[:alpha:]-]+"
+  )
+table(schools_and_deps)
+```
+
+#Question 5: Form a database
+
+```{r}
+pub_char_list <- xml2::xml_children(publications)
+pub_char_list <- sapply(pub_char_list, as.character)
+```
+
+```{r}
+abstracts <- str_extract(pub_char_list, "<Abstract>[[:print:][:space:]]+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]- =\"]+>") # '</?[[:alnum:]- ="]+>'
+abstracts <- str_replace_all(abstracts, "[[:space:]]+", " ")
+```
+
+```{r}
+titles <- str_extract(pub_char_list, "<ArticleTitle>[[:print:][:space:]]+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]- =\"]+>")
+```
+
+```{r}
+database <- data.frame(
+  PubMed = ids,
+  Title = titles,
+  Abstract = abstracts
+)
+knitr::kable(database[1:20,], caption = "Some papers about Covid19 and Hawaii")
+```
 
 Rscript --vanilla -e 'rmarkdown::render("index.Rmd", output_format = "all")'
