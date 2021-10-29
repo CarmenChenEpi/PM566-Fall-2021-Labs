@@ -40,7 +40,7 @@ microbenchmark::microbenchmark(
 ```
 
 ##Problem 3
-```{r eval=FALSE}
+```{r}
 # Data Generating Process (10 x 10,000 matrix)
 set.seed(1234)
 x <- matrix(rnorm(1e4), nrow=10)
@@ -51,13 +51,17 @@ fun2 <- function(x) {
 }
 
 fun2alt <- function(x) {
-  # YOUR CODE HERE
+  idx <- max.col(t(x))
+  x[cbind(idx, 1:ncol(x))]
 }
+
+#Do we get the same matrix?
+all(fun2(x) == fun2alt(x))
 
 # Benchmarking
 microbenchmark::microbenchmark(
-  fun2(),
-  fun2alt()
+  fun2(x),
+  fun2alt(x), unit = "relative"
 )
 ```
 
