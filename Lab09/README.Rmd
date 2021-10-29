@@ -1,0 +1,63 @@
+---
+title: "Lab 09"
+author: "Carmen Chen"
+date: "10/29/2021"
+output: github_document
+always_allow_html: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "http://cran.rstudio.com")) 
+library(tidyverse)
+library(tidytext)
+library(tibble)
+library(dplyr)
+```
+
+
+#Problem 2
+```{r}
+fun1 <- function(n = 100, k = 4, lambda = 4) {
+  x <- NULL
+  for (i in 1:n)
+    x <- rbind(x, rpois(k, lambda))
+  return(x)
+}
+
+fun1(5, 10)
+
+fun1alt <- function(n = 100, k = 4, lambda = 4) {
+  matrix(rpois(n * k, lambda), nrow = n, ncol = k, byrow = TRUE)
+}
+
+fun1alt(5,10)
+
+microbenchmark::microbenchmark(
+  fun1(n = 1000),
+  fun1alt(n = 1000), unit = "relative"
+)
+```
+
+##Problem 3
+```{r eval=FALSE}
+# Data Generating Process (10 x 10,000 matrix)
+set.seed(1234)
+x <- matrix(rnorm(1e4), nrow=10)
+
+# Find each column's max value
+fun2 <- function(x) {
+  apply(x, 2, max)
+}
+
+fun2alt <- function(x) {
+  # YOUR CODE HERE
+}
+
+# Benchmarking
+microbenchmark::microbenchmark(
+  fun2(),
+  fun2alt()
+)
+```
+
