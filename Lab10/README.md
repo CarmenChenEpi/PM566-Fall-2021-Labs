@@ -166,13 +166,15 @@ dbGetQuery(con, "PRAGMA table_info(payment)")
     ## 5   4       amount    REAL       0         NA  0
     ## 6   5 payment_date    TEXT       0         NA  0
 
+\#\#4.1
+
 ``` r
 q <- dbSendQuery(con,"
 SELECT *
 FROM payment
 WHERE amount IN (1.99, 7.99, 9.99)")
 
-dbFetch(q, n = 10)
+dbFetch(q, n = 10) #keep fetching a subset of the dataset
 ```
 
     ##    payment_id customer_id staff_id rental_id amount               payment_date
@@ -188,8 +190,54 @@ dbFetch(q, n = 10)
     ## 10      16206         351        1      1137   1.99 2007-01-31 17:48:40.996577
 
 ``` r
-dbDisconnect(con)
+dbFetch(q, n = 10)
 ```
 
-    ## Warning in connection_release(conn@ptr): There are 1 result in use. The
-    ## connection will be released when they are closed
+    ##    payment_id customer_id staff_id rental_id amount               payment_date
+    ## 1       16210         354        2       158   1.99 2007-01-25 23:55:37.996577
+    ## 2       16240         369        2       913   7.99 2007-01-30 09:33:24.996577
+    ## 3       16275         386        1       583   7.99 2007-01-28 10:17:21.996577
+    ## 4       16277         387        1       697   7.99 2007-01-29 00:32:30.996577
+    ## 5       16289         391        1       891   7.99 2007-01-30 06:11:38.996577
+    ## 6       16302         400        2       516   1.99 2007-01-28 01:40:13.996577
+    ## 7       16306         401        2       811   1.99 2007-01-29 17:59:08.996577
+    ## 8       16307         402        2       801   1.99 2007-01-29 16:04:16.996577
+    ## 9       16314         407        1       619   7.99 2007-01-28 14:20:52.996577
+    ## 10      16320         411        2       972   1.99 2007-01-30 18:49:33.996577
+
+``` r
+dbClearResult(q) #you need to clear the result to avoid exhausting resources
+```
+
+\#\#4.2
+
+``` r
+dbGetQuery(con,"
+SELECT *
+FROM payment
+WHERE amount > 5
+LIMIT 5")
+```
+
+    ##   payment_id customer_id staff_id rental_id amount               payment_date
+    ## 1      16052         269        2       678   6.99 2007-01-28 21:44:14.996577
+    ## 2      16058         271        1      1096   8.99 2007-01-31 11:59:15.996577
+    ## 3      16060         272        1       405   6.99 2007-01-27 12:01:05.996577
+    ## 4      16061         272        1      1041   6.99 2007-01-31 04:14:49.996577
+    ## 5      16068         274        1       394   5.99 2007-01-27 09:54:37.996577
+
+Bonus: Count the number of the results
+
+``` r
+dbGetQuery(con,"
+SELECT COUNT(*)
+FROM payment
+WHERE amount > 5")
+```
+
+    ##   COUNT(*)
+    ## 1      266
+
+``` r
+dbDisconnect(con)
+```

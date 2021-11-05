@@ -105,17 +105,46 @@ WHERE date(rental_date) = '2005-07-05'")
 ```{r}
 dbGetQuery(con, "PRAGMA table_info(payment)")
 ```
-
+##4.1
 ```{r}
 q <- dbSendQuery(con,"
 SELECT *
 FROM payment
 WHERE amount IN (1.99, 7.99, 9.99)")
 
+dbFetch(q, n = 10) #keep fetching a subset of the dataset
 dbFetch(q, n = 10)
-dbFetch(q, n = 10)
+dbClearResult(q) #you need to clear the result to avoid exhausting resources
 ```
 
+##4.2
+```{r}
+dbGetQuery(con,"
+SELECT *
+FROM payment
+WHERE amount > 5
+LIMIT 5")
+```
+
+Bonus: Count the number of the results
+
+```{r}
+dbGetQuery(con,"
+SELECT COUNT(*)
+FROM payment
+WHERE amount > 5")
+```
+
+Count the number of the staffs
+
+```{r}
+dbGetQuery(con,"
+SELECT staff_id, COUNT(*) AS N
+FROM payment
+/*GROUP BY goes after WHERE*/
+WHERE amount > 5
+GROUP BY staff_id")
+```
 
 
 ```{r cleaning}
