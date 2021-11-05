@@ -87,6 +87,37 @@ FROM actor
 WHERE last_name IN ('WILLIAMS', 'DAVIS')")
 ```
 
+#Question 3
+
+```{r}
+dbGetQuery(con, "PRAGMA table_info(rental)")
+```
+
+```{r}
+dbGetQuery(con, "
+SELECT DISTINCT customer_id
+FROM rental
+WHERE date(rental_date) = '2005-07-05'")
+```
+
+#Question 4
+
+```{r}
+dbGetQuery(con, "PRAGMA table_info(payment)")
+```
+
+```{r}
+q <- dbSendQuery(con,"
+SELECT *
+FROM payment
+WHERE amount IN (1.99, 7.99, 9.99)")
+
+dbFetch(q, n = 10)
+dbFetch(q, n = 10)
+```
+
+
+
 ```{r cleaning}
 dbDisconnect(con)
 ```
