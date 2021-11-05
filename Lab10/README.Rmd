@@ -78,6 +78,14 @@ ORDER by last_name, first_name
 LIMIT 5")
 ```
 
+#Question 2
+
+```{r}
+dbGetQuery(con, "
+SELECT actor_id, first_name, last_name
+FROM actor
+WHERE last_name IN ('WILLIAMS', 'DAVIS')")
+```
 
 ```{r cleaning}
 dbDisconnect(con)

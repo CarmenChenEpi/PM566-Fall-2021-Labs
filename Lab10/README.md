@@ -84,6 +84,23 @@ LIMIT 5")
     ## 4      118       CUBA     ALLEN
     ## 5      145        KIM     ALLEN
 
+\#Question 2
+
+``` r
+dbGetQuery(con, "
+SELECT actor_id, first_name, last_name
+FROM actor
+WHERE last_name IN ('WILLIAMS', 'DAVIS')")
+```
+
+    ##   actor_id first_name last_name
+    ## 1        4   JENNIFER     DAVIS
+    ## 2       72       SEAN  WILLIAMS
+    ## 3      101      SUSAN     DAVIS
+    ## 4      110      SUSAN     DAVIS
+    ## 5      137     MORGAN  WILLIAMS
+    ## 6      172    GROUCHO  WILLIAMS
+
 ``` r
 dbDisconnect(con)
 ```
