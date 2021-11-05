@@ -1,24 +1,11 @@
----
-title: "Lab10"
-author: "Carmen Chen"
-date: "11/5/2021"
-output:
-  github_document:
-    html_preview: false
-  html_document: default
-always_allow_html: true
----
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-options(repos = c(CRAN = "http://cran.rstudio.com")) 
-```
-
+Lab10
+================
+Carmen Chen
+11/5/2021
 
 **Set up**
 
-```{r setup-cons}
+``` r
 # install.packages(c("RSQLite", "DBI"))
 
 library(RSQLite)
@@ -40,36 +27,48 @@ dbWriteTable(con, "customer", customer)
 dbWriteTable(con, "payment", payment)
 ```
 
-
 Are the tables there?
 
-```{r list tables}
+``` r
 dbListTables(con)
 ```
 
+    ## [1] "actor"    "customer" "payment"  "rental"
+
 You can also use knitr + SQL!
 
-```{sql, connection=con, output.var="x1"}
+``` sql
 PRAGMA table_info(actor)
 ```
 
-```{r}
+``` r
 x1
 ```
 
+    ##   cid        name    type notnull dflt_value pk
+    ## 1   0    actor_id INTEGER       0         NA  0
+    ## 2   1  first_name    TEXT       0         NA  0
+    ## 3   2   last_name    TEXT       0         NA  0
+    ## 4   3 last_update    TEXT       0         NA  0
 
 This is equivalent to use`dbGetQuery`
 
-```{r}
+``` r
 dbGetQuery(con, "PRAGMA table_info(actor)")
 ```
 
+    ##   cid        name    type notnull dflt_value pk
+    ## 1   0    actor_id INTEGER       0         NA  0
+    ## 2   1  first_name    TEXT       0         NA  0
+    ## 3   2   last_name    TEXT       0         NA  0
+    ## 4   3 last_update    TEXT       0         NA  0
 
-#Question 1
+\#Question 1
 
-AND using the LIMIT clause (`head()` in R) to just look at the first 5 rows
+AND using the LIMIT clause (`head()` in R) to just look at the first 5
+rows
 
-```{r}
+``` r
 dbGetQuery(con, "
 /*You can add comments*/
 SELECT actor_id, first_name, last_name
@@ -78,8 +77,13 @@ ORDER by last_name, first_name
 LIMIT 5")
 ```
 
+    ##   actor_id first_name last_name
+    ## 1       58  CHRISTIAN    AKROYD
+    ## 2      182     DEBBIE    AKROYD
+    ## 3       92    KIRSTEN    AKROYD
+    ## 4      118       CUBA     ALLEN
+    ## 5      145        KIM     ALLEN
 
-```{r cleaning}
+``` r
 dbDisconnect(con)
 ```
-
