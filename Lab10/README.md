@@ -3,7 +3,7 @@ Lab10
 Carmen Chen
 11/5/2021
 
-**Set up**
+\#Set up
 
 ``` r
 # install.packages(c("RSQLite", "DBI"))
@@ -237,6 +237,182 @@ WHERE amount > 5")
 
     ##   COUNT(*)
     ## 1      266
+
+Count the number of the staffs
+
+``` r
+dbGetQuery(con,"
+SELECT staff_id, COUNT(*) AS N
+FROM payment
+/*GROUP BY goes after WHERE*/
+WHERE amount > 5
+GROUP BY staff_id")
+```
+
+    ##   staff_id   N
+    ## 1        1 151
+    ## 2        2 115
+
+\#Question 5
+
+``` r
+dbGetQuery(con, "
+SELECT payment_id, COUNT(*) AS N
+FROM payment AS p
+  INNER JOIN customer AS c
+  on p.customer_id = c.customer_id
+WHERE c.last_name = 'DAVIS'")
+```
+
+    ##   payment_id N
+    ## 1      16685 3
+
+\#Question 6
+
+\#\#6.1
+
+``` r
+dbGetQuery(con, "
+SELECT COUNT(*)
+FROM rental")
+```
+
+    ##   COUNT(*)
+    ## 1    16044
+
+\#\#6.2
+
+``` r
+dbGetQuery(con, "
+SELECT customer_id, COUNT(*) AS `N Rentals`
+FROM rental
+GROUP BY customer_id
+LIMIT 5")
+```
+
+    ##   customer_id N Rentals
+    ## 1           1        32
+    ## 2           2        27
+    ## 3           3        26
+    ## 4           4        22
+    ## 5           5        38
+
+\#\#6.3
+
+``` r
+dbGetQuery(con, "
+SELECT customer_id, COUNT(*) AS `N Rentals`, 1 AS Number /*assign 1 to every ovbervation in the Number column*/
+FROM rental
+GROUP BY customer_id
+/*This is equivalent to
+ORDER BY -`N Rentals`*/
+ORDER BY `N Rentals` DESC /*sort*/
+LIMIT 5")
+```
+
+    ##   customer_id N Rentals Number
+    ## 1         148        46      1
+    ## 2         526        45      1
+    ## 3         236        42      1
+    ## 4         144        42      1
+    ## 5          75        41      1
+
+\#\#6.4
+
+``` r
+dbGetQuery(con, "
+SELECT customer_id, COUNT(*) AS `N Rentals`
+FROM rental
+GROUP BY customer_id
+HAVING `N Rentals` >= 40
+ORDER BY `N Rentals` DESC")
+```
+
+    ##   customer_id N Rentals
+    ## 1         148        46
+    ## 2         526        45
+    ## 3         236        42
+    ## 4         144        42
+    ## 5          75        41
+    ## 6         469        40
+    ## 7         197        40
+
+\#Question 7
+
+``` r
+dbGetQuery(con, "
+SELECT 
+  MAX(amount) AS `max`,
+  MIN(amount) AS `min`,
+  AVG(amount) AS `avg`,
+  SUM(amount) AS `sum`
+FROM payment
+")
+```
+
+    ##     max  min      avg     sum
+    ## 1 11.99 0.99 4.169775 4824.43
+
+\#\#7.1
+
+``` r
+dbGetQuery(con, "
+SELECT 
+  customer_id,
+  MAX(amount) AS `max`,
+  MIN(amount) AS `min`,
+  AVG(amount) AS `avg`,
+  SUM(amount) AS `sum`
+FROM payment
+GROUP BY customer_id
+LIMIT 10")
+```
+
+    ##    customer_id  max  min      avg   sum
+    ## 1            1 2.99 0.99 1.990000  3.98
+    ## 2            2 4.99 4.99 4.990000  4.99
+    ## 3            3 2.99 1.99 2.490000  4.98
+    ## 4            5 6.99 0.99 3.323333  9.97
+    ## 5            6 4.99 0.99 2.990000  8.97
+    ## 6            7 5.99 0.99 4.190000 20.95
+    ## 7            8 6.99 6.99 6.990000  6.99
+    ## 8            9 4.99 0.99 3.656667 10.97
+    ## 9           10 4.99 4.99 4.990000  4.99
+    ## 10          11 6.99 6.99 6.990000  6.99
+
+\#\#7.2
+
+``` r
+dbGetQuery(con, "
+SELECT 
+  customer_id,
+  MAX(amount) AS `max`,
+  MIN(amount) AS `min`,
+  AVG(amount) AS `avg`,
+  SUM(amount) AS `sum`,
+  COUNT(rental_id) AS `N Rentals`
+FROM payment
+GROUP BY customer_id
+HAVING `N Rentals` > 5")
+```
+
+    ##    customer_id  max  min      avg   sum N Rentals
+    ## 1           19 9.99 0.99 4.490000 26.94         6
+    ## 2           53 9.99 0.99 4.490000 26.94         6
+    ## 3          109 7.99 0.99 3.990000 27.93         7
+    ## 4          161 5.99 0.99 2.990000 17.94         6
+    ## 5          197 3.99 0.99 2.615000 20.92         8
+    ## 6          207 6.99 0.99 2.990000 17.94         6
+    ## 7          239 7.99 2.99 5.656667 33.94         6
+    ## 8          245 8.99 0.99 4.823333 28.94         6
+    ## 9          251 4.99 1.99 3.323333 19.94         6
+    ## 10         269 6.99 0.99 3.156667 18.94         6
+    ## 11         274 5.99 2.99 4.156667 24.94         6
+    ## 12         371 6.99 0.99 4.323333 25.94         6
+    ## 13         506 8.99 0.99 4.132857 28.93         7
+    ## 14         596 6.99 0.99 3.823333 22.94         6
+
+\#Clean up
 
 ``` r
 dbDisconnect(con)

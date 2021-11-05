@@ -16,7 +16,7 @@ options(repos = c(CRAN = "http://cran.rstudio.com"))
 ```
 
 
-**Set up**
+#Set up
 
 ```{r setup-cons}
 # install.packages(c("RSQLite", "DBI"))
@@ -146,7 +146,104 @@ WHERE amount > 5
 GROUP BY staff_id")
 ```
 
+#Question 5
 
+```{r}
+dbGetQuery(con, "
+SELECT payment_id, COUNT(*) AS N
+FROM payment AS p
+  INNER JOIN customer AS c
+  on p.customer_id = c.customer_id
+WHERE c.last_name = 'DAVIS'")
+```
+
+#Question 6
+
+##6.1
+```{r}
+dbGetQuery(con, "
+SELECT COUNT(*)
+FROM rental")
+```
+
+##6.2
+```{r}
+dbGetQuery(con, "
+SELECT customer_id, COUNT(*) AS `N Rentals`
+FROM rental
+GROUP BY customer_id
+LIMIT 5")
+```
+
+##6.3
+```{r}
+dbGetQuery(con, "
+SELECT customer_id, COUNT(*) AS `N Rentals`, 1 AS Number /*assign 1 to every ovbervation in the Number column*/
+FROM rental
+GROUP BY customer_id
+/*This is equivalent to
+ORDER BY -`N Rentals`*/
+ORDER BY `N Rentals` DESC /*sort*/
+LIMIT 5")
+```
+
+##6.4
+
+```{r}
+dbGetQuery(con, "
+SELECT customer_id, COUNT(*) AS `N Rentals`
+FROM rental
+GROUP BY customer_id
+HAVING `N Rentals` >= 40
+ORDER BY `N Rentals` DESC")
+```
+
+
+#Question 7
+
+```{r}
+dbGetQuery(con, "
+SELECT 
+  MAX(amount) AS `max`,
+  MIN(amount) AS `min`,
+  AVG(amount) AS `avg`,
+  SUM(amount) AS `sum`
+FROM payment
+")
+```
+
+##7.1
+
+```{r}
+dbGetQuery(con, "
+SELECT 
+  customer_id,
+  MAX(amount) AS `max`,
+  MIN(amount) AS `min`,
+  AVG(amount) AS `avg`,
+  SUM(amount) AS `sum`
+FROM payment
+GROUP BY customer_id
+LIMIT 10")
+```
+
+##7.2
+
+```{r}
+dbGetQuery(con, "
+SELECT 
+  customer_id,
+  MAX(amount) AS `max`,
+  MIN(amount) AS `min`,
+  AVG(amount) AS `avg`,
+  SUM(amount) AS `sum`,
+  COUNT(rental_id) AS `N Rentals`
+FROM payment
+GROUP BY customer_id
+HAVING `N Rentals` > 5")
+```
+
+#Clean up
 ```{r cleaning}
 dbDisconnect(con)
 ```
