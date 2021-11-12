@@ -1,11 +1,8 @@
 ---
-  title: "Lab11"
+title: "Lab11"
 author: "Carmen Chen"
 date: "11/12/2021"
-output:
-  html_document: default
-github_document:
-  html_preview: false
+output: html_document
 always_allow_html: true
 ---
 
