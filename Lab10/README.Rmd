@@ -237,10 +237,10 @@ SELECT
   MIN(amount) AS `min`,
   AVG(amount) AS `avg`,
   SUM(amount) AS `sum`,
-  COUNT(rental_id) AS `N Rentals`
+  COUNT(*) AS `N`
 FROM payment
 GROUP BY customer_id
-HAVING `N Rentals` > 5")
+HAVING COUNT(*) > 5")
 ```
 
 #Clean up
